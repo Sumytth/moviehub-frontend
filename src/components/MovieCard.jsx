@@ -3,15 +3,26 @@ import { Link } from 'react-router-dom';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useWatchlist } from '../context/WatchlistContext';
 import { getImageUrl } from '../utils/formatters';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const MovieCard = ({ item }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addMovie, removeMovie, isInWatchlist } = useWatchlist();
   const saved = isInWatchlist(item.id);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const toggleWatchlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      alert("Please login to use Watchlist");
+      navigate("/login");
+      return;
+    }
+
     if (saved) {
       removeMovie(item.id);
     } else {
@@ -21,7 +32,7 @@ const MovieCard = ({ item }) => {
 
   return (
     <Link to={`/movie/${item.id}`} className="w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px] inline-block relative p-2 flex-shrink-0 group">
-      <div 
+      <div
         className="w-full aspect-[2/3] relative overflow-hidden rounded-md bg-gray-800 transition-transform duration-300 ease-out group-hover:scale-105 group-hover:z-10 shadow-lg"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -37,7 +48,7 @@ const MovieCard = ({ item }) => {
             {item?.title}
           </p>
           <div onClick={toggleWatchlist} className="absolute top-4 left-4 text-gray-300 hover:text-white cursor-pointer z-20">
-             {saved ? <FaHeart className="text-netflix text-xl" /> : <FaRegHeart className="text-xl" />}
+            {saved ? <FaHeart className="text-netflix text-xl" /> : <FaRegHeart className="text-xl" />}
           </div>
         </div>
       </div>
